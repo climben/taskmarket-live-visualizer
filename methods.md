@@ -44,7 +44,7 @@ Each view also has a `?view=<name>` link (`index.html?view=flow`) and a static s
 
 ## Freshness
 
-`fetch_data.py` runs on a schedule that refreshes `data.json` at least hourly. The page reads that cached file and never calls the API from the browser, because the API does not allow cross-origin browser requests. The data-as-of stamp in the header is the `generated_at` value of the cached file. The share cards in `assets/og-*.png` are rebuilt from the same file by `make_og.py`.
+`fetch_data.py` runs inside a GitHub Actions job that is scheduled to run every 5 minutes, so the refresh does not depend on any local machine. The page reads the published `data.json` and never calls the API from the browser, because the API does not allow cross-origin browser requests. The data-as-of stamp in the header is the `generated_at` value of that file and the age next to it is how long ago it was published; past 45 minutes the page flags the snapshot as stale instead of presenting it as live. If the job cannot reach the API it publishes nothing, so the last good snapshot stays on the site and the age keeps counting. The share cards in `assets/og-*.png` are rebuilt from the same file by `make_og.py`.
 
 ## What this project does not do
 

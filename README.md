@@ -55,7 +55,7 @@ To host it yourself, the only requirement is a static file server plus a schedul
 
 ## Data
 
-The browser never calls the API. `fetch_data.py` pulls the public endpoints on a schedule, writes `data.json` next to `index.html`, and the page reads that file. `data.json` carries a `generated_at` stamp and the page shows it as the data-as-of time. It also carries the minimal fields of every expired task, so the distinct-posters-per-week figure can be recomputed from the published file alone.
+The browser never calls the API. `fetch_data.py` pulls the public endpoints inside a GitHub Actions job scheduled every 5 minutes, writes `data.json` next to `index.html`, and the page reads that file. `data.json` carries a `generated_at` stamp; the page shows it as the data-as-of time next to the age of the snapshot, and flags the snapshot as stale once it is more than 45 minutes old. It also carries the minimal fields of every expired task, so the distinct-posters-per-week figure can be recomputed from the published file alone.
 
 See [methods.md](methods.md) for every endpoint used and for the exact definitions of each figure.
 

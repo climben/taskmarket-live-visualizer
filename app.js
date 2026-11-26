@@ -9,6 +9,13 @@ var VIEWS = [['overview', 'Overview', 'index.html'],
              ['swarm', 'The swarm', 'swarm.html'],
              ['insight', 'What is not obvious', 'insight.html']];
 
+/* Freshness. The API sends no CORS header, so the browser never calls it:
+   the page reads a published data.json. Say how old that file is, call a
+   stale snapshot stale, and never let a missing field render as a zero. */
+var STALE_MIN = 45;          // a snapshot older than this is flagged as stale
+var LIVE_ENDPOINT = '';      // optional always-live JSON endpoint, same schema as data.json
+var LIVE_TRIED = false;
+
 function q(id) { return document.getElementById(id); }
 function el(tag, cls, txt) {
   var n = document.createElement(tag);
@@ -21,7 +28,12 @@ function svgEl(tag, attrs) {
   for (var k in attrs) { if (attrs.hasOwnProperty(k)) { n.setAttribute(k, attrs[k]); } }
   return n;
 }
-function fmtInt(n) { return Math.round(Number(n) || 0).toLocaleString('en-US'); }
+function fmtInt(n) {
+  if (n === null || n === undefined || n === '') { return '\u2014'; }
+  var x = Number(n);
+  if (!isFinite(x)) { return '\u2014'; }
+  return Math.round(x).toLocaleString('en-US');
+}
 function fmtUsd(v) {
   if (v === null || v === undefined || v === '') { return '\u2014'; }
   var x = Number(v);
@@ -196,7 +208,7 @@ function renderRangeSwitch() {
 function renderKpis() {
   var ch = chainData();
   var st = ch.stats || {};
-  var completed = 0;
+  var completed = null;
   var sd = (ch.breakdowns && ch.breakdowns.status) || [];
   for (var i = 0; i < sd.length; i++) { if (sd[i].status === 'completed') { completed = sd[i].count; } }
   var items = [['Open tasks', fmtInt(st.openTasks)], ['Active agents (7d)', fmtInt(st.activeAgents7d)],
@@ -301,9 +313,72 @@ function renderMethods() {
   var ch = chainData();
   var cn = ch.task_counts || {};
   var p = el('p', 'note');
-  p.textContent = 'Data as of ' + D.generated_at + '. The page is static and reads a cached data.json written by a scheduled job, so it never calls the API from a browser; the job refreshes it at least hourly. Rewards are the platform atomic reward units divided by 1e6. The API reports registered workers, active agents and open tasks as market-wide values, so those three are the same on both chains; paid workers and active wallets differ per chain. Distinct posters per week come from ' +
+  p.textContent = 'Data as of ' + D.generated_at + '. The page is static and reads a cached data.json published by a GitHub Actions job that is scheduled to run every 5 minutes, so it never calls the API from a browser and no local machine has to be awake. The stamp is the moment that job fetched the data, and the age in the header is how long ago that was; past 45 minutes the page says the snapshot is stale instead of presenting it as live. Rewards are the platform atomic reward units divided by 1e6. The API reports registered workers, active agents and open tasks as market-wide values, so those three are the same on both chains; paid workers and active wallets differ per chain. Distinct posters per week come from ' +
     ((cn.open || 0) + (cn.expired_seen || 0)) + ' tasks returned by the task list endpoint (' + (cn.open || 0) + ' open, ' + (cn.expired_seen || 0) + ' expired). Amounts are shown exactly as the API reports them, in dollars, so any figure can be compared with the API directly. Names are the display names the API itself returns for those addresses; nothing is inferred.';
   host.appendChild(p);
+}
+
+function stampMs() {
+  var t = Date.parse((D && D.generated_at) || '');
+  return isFinite(t) ? t : null;
+}
+function dataAgeMs() {
+  var t = stampMs();
+  return t === null ? null : (Date.now() - t);
+}
+function fmtAge(ms) {
+  if (ms === null) { return 'age unknown'; }
+  if (ms < 60000) { return 'just now'; }
+  var m = Math.floor(ms / 60000);
+  if (m < 60) { return m + ' min old'; }
+  var h = Math.floor(m / 60), rm = m % 60;
+  if (h < 48) { return h + ' h' + (rm ? ' ' + rm + ' min' : '') + ' old'; }
+  var d = Math.floor(h / 24), hd = h % 24;
+  return d + ' d' + (hd ? ' ' + hd + ' h' : '') + ' old';
+}
+function isStale() {
+  var ms = dataAgeMs();
+  return ms === null || ms > STALE_MIN * 60000;
+}
+function renderFreshness() {
+  var asof = q('asof'), box = q('freshness');
+  var t = (D && D.generated_at) || 'unknown';
+  var via = (D && D.source === 'live endpoint') ? 'live endpoint \u00b7 ' : '';
+  if (asof) { asof.textContent = via + 'data as of ' + t + ' \u00b7 ' + fmtAge(dataAgeMs()); }
+  if (!box) { return; }
+  if (!isStale()) {
+    box.hidden = true;
+    box.textContent = '';
+    document.body.removeAttribute('data-stale');
+    return;
+  }
+  var ms = dataAgeMs();
+  box.hidden = false;
+  box.textContent = ms === null
+    ? 'Data age unknown: this snapshot carries no usable timestamp, so treat every figure below as unverified.'
+    : 'This snapshot is ' + fmtAge(ms) + ' \u2014 last published ' + t + '. Nothing newer has been published, so the figures below are the last published snapshot, not live.';
+  document.body.setAttribute('data-stale', '1');
+}
+/* Fallback: when the published snapshot has aged past STALE_MIN, ask the
+   always-live endpoint for a fresh copy. Only a complete payload is swapped
+   in, and a failed fallback leaves the stale marker in place. */
+function tryLive() {
+  if (!LIVE_ENDPOINT || LIVE_TRIED) { return; }
+  LIVE_TRIED = true;
+  var x = new XMLHttpRequest();
+  x.open('GET', LIVE_ENDPOINT, true);
+  x.timeout = 20000;
+  x.onload = function () {
+    if (x.status !== 200) { return; }
+    var j = null;
+    try { j = JSON.parse(x.responseText); } catch (e) { return; }
+    if (!j || !j.generated_at || !j.chains || !j.chains.tempo || !j.chains.base) { return; }
+    D = j;
+    D.source = 'live endpoint';
+    renderAll();
+  };
+  x.onerror = function () {};
+  x.send();
 }
 
 function renderAll() {
@@ -318,7 +393,7 @@ function renderAll() {
   renderMethods();
   renderHeroPulse();
   renderView();
-  q('asof').textContent = 'data as of ' + D.generated_at;
+  renderFreshness();
 }
 
 /* ---------------- views, share links, hero ---------------- */
@@ -794,6 +869,8 @@ function boot() {
       catch (e) { q('asof').textContent = 'data parse failed'; return; }
       VIEW = viewFromUrl();
       renderAll();
+      setInterval(renderFreshness, 30000);
+      if (isStale()) { tryLive(); }
     } else { q('asof').textContent = 'data unavailable'; }
   };
   x.onerror = function () { q('asof').textContent = 'data unavailable'; };

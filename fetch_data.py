@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """fetch_data.py - server-side data pull for the Taskmarket live visualizer.
 
-Runs hourly on GitHub Actions and writes data.json beside index.html.
+Runs on a 5-minute schedule in GitHub Actions and writes data.json beside index.html.
 The page never calls the API from the browser: the API does not allow
 cross-origin browser requests, so the data is fetched here and cached.
 

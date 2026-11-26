@@ -1,0 +1,19 @@
+name: scheduler heartbeat
+
+# A trivial scheduled job. If this ever runs, GitHub's own scheduler is
+# dispatching for this repository; the refresh job needs no local machine.
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  beat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: heartbeat
+        run: echo "heartbeat $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_STEP_SUMMARY"
