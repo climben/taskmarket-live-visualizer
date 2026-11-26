@@ -42,7 +42,7 @@ svg.plot .dot{fill:var(--magenta)}
 svg.plot .bar{fill:var(--cream);opacity:.82}
 .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
 .bars{display:flex;flex-direction:column;gap:9px}
-.hrow{display:grid;grid-template-columns:96px 1fr 58px;align-items:center;gap:10px;font-size:13px}
+.hrow{display:grid;grid-template-columns:132px 1fr 58px;align-items:center;gap:10px;font-size:13px}
 .hlabel{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .htrack{background:var(--ground);border:1px solid var(--line);border-radius:6px;height:12px;overflow:hidden}
 .hfill{height:100%;background:var(--cream);opacity:.85}

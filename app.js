@@ -48,7 +48,7 @@ function drawLine(host, pts, opt) {
   }
   var svg = svgEl('svg', { viewBox: '0 0 ' + W + ' ' + H, class: 'plot' });
   for (var g = 0; g <= 4; g++) {
-    var gy = pt + ih - (ih * g / 4);
+    var gy = pt + (ih * g / 4);
     svg.appendChild(svgEl('line', { x1: pl, x2: W - pr, y1: gy, y2: gy, class: 'grid' }));
     var at = svgEl('text', { x: pl - 8, y: gy + 4, class: 'ax' });
     at.textContent = opt.fmt ? opt.fmt(max - (max - min) * (g / 4)) : fmtInt(max - (max - min) * (g / 4));
@@ -83,7 +83,7 @@ function drawBars(host, pts, opt) {
   var bw = Math.max(1, (iw - (n - 1) * gap) / n);
   var svg = svgEl('svg', { viewBox: '0 0 ' + W + ' ' + H, class: 'plot' });
   for (var g = 0; g <= 4; g++) {
-    var gy = pt + ih - (ih * g / 4);
+    var gy = pt + (ih * g / 4);
     svg.appendChild(svgEl('line', { x1: pl, x2: W - pr, y1: gy, y2: gy, class: 'grid' }));
     var at = svgEl('text', { x: pl - 8, y: gy + 4, class: 'ax' });
     at.textContent = opt.fmt ? opt.fmt(max * (4 - g) / 4) : fmtInt(max * (4 - g) / 4);
