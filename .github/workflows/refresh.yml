@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment_retry.outputs.page_url || steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment_retry2.outputs.page_url || steps.deployment_retry.outputs.page_url || steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -50,7 +50,17 @@ jobs:
         id: deployment
         continue-on-error: true
         uses: actions/deploy-pages@v4
-      - name: Deploy to GitHub Pages (retry)
+      - name: Wait before retry
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 60
+      - name: Deploy to GitHub Pages (retry 1)
         id: deployment_retry
         if: steps.deployment.outcome == 'failure'
+        uses: actions/deploy-pages@v4
+      - name: Wait before second retry
+        if: steps.deployment.outcome == 'failure' || steps.deployment_retry.outcome == 'failure'
+        run: sleep 120
+      - name: Deploy to GitHub Pages (retry 2)
+        id: deployment_retry2
+        if: steps.deployment.outcome == 'failure' || steps.deployment_retry.outcome == 'failure'
         uses: actions/deploy-pages@v4
