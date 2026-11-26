@@ -4,8 +4,13 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: '7,22,37,52 * * * *'
+    # Every 5 minutes: GitHub's scheduler evaluates cron roughly every 15
+    # minutes under load, so the real cadence is between 5 and 20 minutes.
+    # Nothing here depends on a local machine.
+    - cron: '*/5 * * * *'
   workflow_dispatch:
+  repository_dispatch:
+    types: [refresh-data]
 
 permissions:
   contents: read
@@ -19,6 +24,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     environment:
       name: github-pages
       url: ${{ steps.deployment_retry2.outputs.page_url || steps.deployment_retry.outputs.page_url || steps.deployment.outputs.page_url }}
@@ -28,26 +34,44 @@ jobs:
         with:
           python-version: '3.12'
       - name: Fetch market data
-        run: python fetch_data.py
+        id: fetch
+        run: |
+          for i in 1 2 3; do
+            if python fetch_data.py; then
+              echo "fetch_ok=1" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "::warning::live fetch attempt $i failed"
+            sleep 20
+          done
+          # Never publish a stale snapshot: leave the previously deployed site
+          # live and report the failure instead of overwriting it.
+          echo "fetch_ok=0" >> "$GITHUB_OUTPUT"
+          echo "::warning::live fetch failed 3 times - the previously deployed site stays live, no stale data was published"
       - name: Build share cards
+        if: steps.fetch.outputs.fetch_ok == '1'
         continue-on-error: true
         run: |
           python -m pip install --quiet pillow || true
           python make_og.py || true
       - name: Stage the site
+        if: steps.fetch.outputs.fetch_ok == '1'
         run: |
           mkdir -p _site
           cp index.html app.js styles.css data.json methods.md README.md LICENSE _site/
           cp flow.html swarm.html insight.html _site/
           cp -r assets fonts _site/
       - name: Configure Pages
+        if: steps.fetch.outputs.fetch_ok == '1'
         uses: actions/configure-pages@v5
       - name: Upload site
+        if: steps.fetch.outputs.fetch_ok == '1'
         uses: actions/upload-pages-artifact@v3
         with:
           path: '_site'
       - name: Deploy to GitHub Pages
         id: deployment
+        if: steps.fetch.outputs.fetch_ok == '1'
         continue-on-error: true
         uses: actions/deploy-pages@v4
       - name: Wait before retry
@@ -64,3 +88,16 @@ jobs:
         id: deployment_retry2
         if: steps.deployment.outcome == 'failure' || steps.deployment_retry.outcome == 'failure'
         uses: actions/deploy-pages@v4
+      - name: Report what was published
+        if: always()
+        run: |
+          if [ "${{ steps.fetch.outputs.fetch_ok }}" = "1" ]; then
+            echo "Published a freshly fetched data.json to GitHub Pages." >> "$GITHUB_STEP_SUMMARY"
+            python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          d = json.load(open("data.json", encoding="utf-8"))
+          print("data.json generated_at:", d.get("generated_at"))
+          PY
+          else
+            echo "::warning::No fresh data this run; the previously deployed site is still live." >> "$GITHUB_STEP_SUMMARY"
+          fi
