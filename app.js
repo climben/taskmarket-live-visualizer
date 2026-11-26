@@ -29,6 +29,7 @@ function chainData() { return D.chains[CHAIN]; }
 function series() { var s = chainData().series || {}; return s[RANGE + '_' + BUCKET] || []; }
 
 function drawLine(host, pts, opt) {
+  if (!opt) { opt = {}; }
   host.innerHTML = '';
   if (!pts || !pts.length) { host.appendChild(el('p', 'note', 'No data for this range.')); return; }
   var W = 660, H = 230, pl = 58, pr = 12, pt = 16, pb = 28;
@@ -69,6 +70,7 @@ function drawLine(host, pts, opt) {
 }
 
 function drawBars(host, pts, opt) {
+  if (!opt) { opt = {}; }
   host.innerHTML = '';
   if (!pts || !pts.length) { host.appendChild(el('p', 'note', 'No data for this range.')); return; }
   var W = 660, H = 230, pl = 58, pr = 12, pt = 16, pb = 28;
