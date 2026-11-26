@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 climben
+Copyright (c) 2026 Taskmarket Live Visualizer contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +19,8 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+Fonts: Instrument Serif, Inter Tight and Departure Mono, all under the SIL Open Font License 1.1 (see fonts/ for the licence texts).
+The Taskmarket lockup and mark are used as supplied under the Taskmarket brand kit and are not modified by this project.

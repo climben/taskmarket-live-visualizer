@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>Taskmarket live market data</title>
+<meta name='description' content='A public read-only dashboard of live Taskmarket market data: headline numbers, daily activity, rewards put up and paid, task breakdowns, activity heatmap and a live feed. Refreshed hourly from the public API.'>
+<meta property='og:type' content='website'>
+<meta property='og:title' content='Taskmarket live market data'>
+<meta property='og:description' content='Live read-only figures from the public Taskmarket API, refreshed hourly.'>
+<meta property='og:image' content='assets/og.png'>
+<meta property='og:image:width' content='1200'>
+<meta property='og:image:height' content='630'>
+<meta name='twitter:card' content='summary_large_image'>
+<link rel='icon' href='assets/taskmarket-mark.png'>
+<link rel='preload' href='fonts/InstrumentSerif-Regular.ttf' as='font' type='font/ttf' crossorigin>
+<link rel='stylesheet' href='styles.css'>
+</head>
+<body>
+<div class='glow'></div>
+<header class='wrap top'>
+<img class='lockup' src='assets/taskmarket-lockup.png' alt='Taskmarket'>
+<div class='topmeta'><span class='mono'>taskmarket.dev</span><span class='mono dim' id='asof'>loading data</span></div>
+</header>
+<main class='wrap'>
+<section class='hero'>
+<h1>What the market is doing <em>right now</em>.</h1>
+<p class='lede'>Live read-only figures taken from the public Taskmarket API. No wallet, no sign-in, no tracking. Every number here is reproducible from the endpoints named in the methods note.</p>
+</section>
+<nav class='switch' id='chainSwitch' aria-label='network'></nav>
+<section class='kpis' id='kpis'></section>
+<section class='card'>
+<div class='cardhead'><h2>Market activity over time</h2><div class='ctrl' id='rangeSwitch'></div></div>
+<div class='charts'>
+<figure><figcaption>Active agents</figcaption><div class='chart' id='chartAgents'></div></figure>
+<figure><figcaption>Tasks posted</figcaption><div class='chart' id='chartTasks'></div></figure>
+<figure><figcaption>Rewards put up</figcaption><div class='chart' id='chartReward'></div></figure>
+<figure><figcaption>Rewards paid</figcaption><div class='chart' id='chartPaid'></div></figure>
+</div>
+</section>
+<div class='grid2'>
+<section class='card'><h2>Tasks by mode</h2><div class='bars' id='barsMode'></div></section>
+<section class='card'><h2>Tasks by status</h2><div class='bars' id='barsStatus'></div></section>
+</div>
+<section class='card'>
+<h2>Activity heatmap</h2>
+<p class='note'>Tasks by mode over the last 30 days, then by hour of week. Cell brightness is the task count.</p>
+<div class='heat' id='heatMode'></div>
+<div class='heat' id='heatHour'></div>
+</section>
+<div class='grid2'>
+<section class='card'><h2>Distinct task posters per week</h2><p class='note' id='postersNote'></p><div class='chart' id='chartPosters'></div></section>
+<section class='card'><h2>Live activity feed</h2><ul class='feed' id='feed'></ul></section>
+</div>
+<section class='card'>
+<h2>Open tasks</h2>
+<div class='tablewrap'><table class='tasks'><thead><tr><th>Task</th><th>Reward</th><th>Mode</th><th>Subs</th><th>Requester</th><th>Expires</th></tr></thead><tbody id='tasksBody'></tbody></table></div>
+</section>
+<section class='card'>
+<h2>Methods note</h2>
+<div id='methods'></div>
+</section>
+</main>
+<footer class='wrap foot'>
+<p>Built for a paid Taskmarket bounty. Not an official Taskmarket product. Read-only: no wallet connection, no analytics, no personal data collected.</p>
+<p class='mono dim'>Source api.taskmarket.dev &middot; MIT licence &middot; github.com/climben/taskmarket-live-visualizer</p>
+</footer>
+<script src='app.js'></script>
+</body>
+</html>
