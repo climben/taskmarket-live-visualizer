@@ -16,7 +16,7 @@ h2{font-size:22px;line-height:1.2}
 .topmeta{display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:right}
 .hero{padding:22px 0 26px}
 .lede{max-width:62ch;color:var(--muted);font-size:15px;margin:14px 0 0}
-.note{color:var(--muted);font-size:13px;margin:8px 0 12px}
+.note{color:var(--muted);font-size:13px;margin:8px 0 12px;overflow-wrap:anywhere}
 .switch{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px}
 .tab{font:inherit;font-size:13px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:7px 16px;cursor:pointer}
 .tab.on{color:var(--ground);background:var(--cream);border-color:var(--cream)}
@@ -68,10 +68,37 @@ table.tasks tr:hover td{background:rgba(239,233,226,.03)}
 .tref{font-family:'Departure Mono',monospace;font-size:11px;color:var(--muted)}
 .ttitle{max-width:42ch}
 .tnum{font-family:'Departure Mono',monospace;color:var(--paper);white-space:nowrap}
-.mlist{margin:6px 0 12px;padding-left:18px;color:var(--muted);font-size:13px}
+.mlist{margin:6px 0 12px;padding-left:18px;color:var(--muted);font-size:13px;overflow-wrap:anywhere}
 .mlist li{margin-bottom:5px}
 .mlist code{font-family:'Departure Mono',monospace;font-size:11px;color:var(--cream)}
 .foot{padding-top:6px;padding-bottom:40px;color:var(--muted);font-size:13px}
 .foot p{margin:4px 0}
 @media(max-width:900px){.kpis{grid-template-columns:repeat(3,1fr)}.charts,.grid2{grid-template-columns:1fr}}
 @media(max-width:560px){.kpis{grid-template-columns:repeat(2,1fr)}body{font-size:14px}.kv{font-size:19px}.topmeta{font-size:11px}}
+
+/* --- view nav, hero pulse, money flow, swarm --- */
+.viewnav{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.viewnav .tab.share{border-style:dashed}
+.pulse{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:20px}
+.pulse.tight{grid-template-columns:repeat(6,1fr);margin-top:6px;gap:10px}
+.pv{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 14px 12px;display:flex;flex-direction:column;justify-content:space-between;min-height:84px}
+.pvv{font-family:'Departure Mono',monospace;font-size:28px;font-weight:700;color:var(--paper);line-height:1.05;white-space:nowrap}
+.pvl{color:var(--muted);font-size:12px;margin-top:8px}
+.pulse.tight .kpi{min-height:78px;padding:12px 12px 10px}
+.sankey{margin-top:6px}
+svg.sankey .ribbon{fill:var(--magenta)}
+svg.sankey .snlabel{font-family:'Inter Tight',system-ui,sans-serif;font-size:13px;fill:var(--cream)}
+svg.sankey .snval{font-family:'Departure Mono',monospace;font-size:11px;fill:var(--muted)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;color:var(--muted);font-size:12px}
+.lgi{display:flex;align-items:center;gap:6px}
+.lgd{width:10px;height:10px;border-radius:2px;display:inline-block}
+svg rect.swork{fill:var(--cream);opacity:.85}
+svg rect.spaid{fill:var(--magenta)}
+svg rect.screated{fill:var(--salmon)}
+.lgd.swork{background:var(--cream)}
+.lgd.spaid{background:var(--magenta)}
+.lgd.screated{background:var(--salmon)}
+table.tasks td.tnum.strong{font-weight:700;font-size:15px;color:var(--cream)}
+td .dim{color:var(--muted)}
+@media(max-width:900px){.pulse{grid-template-columns:repeat(2,1fr)}.pulse.tight{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:560px){.pulse.tight{grid-template-columns:repeat(2,1fr)}.pvv{font-size:22px}}

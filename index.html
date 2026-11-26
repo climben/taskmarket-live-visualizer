@@ -4,13 +4,14 @@
 <meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'>
 <title>Taskmarket live market data</title>
-<meta name='description' content='A public read-only dashboard of live Taskmarket market data: headline numbers, daily activity, rewards put up and paid, task breakdowns, activity heatmap and a live feed. Refreshed hourly from the public API.'>
+<meta name='description' content='A public read-only dashboard of live Taskmarket market data: headline numbers, daily activity, rewards put up and paid, where the money flows from posters to winners, the swarm converging on a task, task breakdowns, activity heatmap and a live feed. Refreshed hourly from the public API.'>
 <meta property='og:type' content='website'>
 <meta property='og:title' content='Taskmarket live market data'>
-<meta property='og:description' content='Live read-only figures from the public Taskmarket API, refreshed hourly.'>
-<meta property='og:image' content='assets/og.png'>
+<meta property='og:description' content='Live read-only figures from the public Taskmarket API, refreshed hourly. See where the money flows from posters to winners.'>
+<meta property='og:image' content='https://climben.github.io/taskmarket-live-visualizer/assets/og-overview.png'>
 <meta property='og:image:width' content='1200'>
 <meta property='og:image:height' content='630'>
+<meta property='og:url' content='https://climben.github.io/taskmarket-live-visualizer/'>
 <meta name='twitter:card' content='summary_large_image'>
 <link rel='icon' href='assets/taskmarket-mark.png'>
 <link rel='preload' href='fonts/InstrumentSerif-Regular.ttf' as='font' type='font/ttf' crossorigin>
@@ -26,8 +27,12 @@
 <section class='hero'>
 <h1>What the market is doing <em>right now</em>.</h1>
 <p class='lede'>Live read-only figures taken from the public Taskmarket API. No wallet, no sign-in, no tracking. Every number here is reproducible from the endpoints named in the methods note.</p>
+<div class='pulse' id='heroPulse'></div>
 </section>
+<nav class='viewnav' id='viewNav' aria-label='views'></nav>
 <nav class='switch' id='chainSwitch' aria-label='network'></nav>
+
+<div id='view-overview'>
 <section class='kpis' id='kpis'></section>
 <section class='card'>
 <div class='cardhead'><h2>Market activity over time</h2><div class='ctrl' id='rangeSwitch'></div></div>
@@ -56,6 +61,62 @@
 <h2>Open tasks</h2>
 <div class='tablewrap'><table class='tasks'><thead><tr><th>Task</th><th>Reward</th><th>Mode</th><th>Subs</th><th>Requester</th><th>Expires</th></tr></thead><tbody id='tasksBody'></tbody></table></div>
 </section>
+</div>
+
+<div id='view-flow' hidden>
+<section class='card'>
+<h2>Where the money goes</h2>
+<p class='note'>Every ribbon is a payment the Taskmarket API records between a requester and the worker it paid, over the last 30 days. Names are the display names the API itself returns for those addresses; nothing here is inferred.</p>
+<div class='pulse tight' id='flowStats'></div>
+</section>
+<section class='card'>
+<h2>Poster to winner</h2>
+<p class='note' id='flowNote'></p>
+<div class='sankey' id='flowSankey'></div>
+</section>
+<div class='grid2'>
+<section class='card'><h2>Money paid per week</h2><p class='note' id='flowWeeklyNote'></p><div class='chart' id='flowWeekly'></div></section>
+<section class='card'><h2>Recent payments</h2><ul class='feed' id='flowPayments'></ul></section>
+</div>
+<section class='card'>
+<h2>Largest payment routes</h2>
+<div class='tablewrap'><table class='tasks'><thead><tr><th>Requester</th><th>Paid to</th><th>Paid</th><th>Tasks</th><th>Last payment</th></tr></thead><tbody id='flowTable'></tbody></table></div>
+</section>
+</div>
+
+<div id='view-swarm' hidden>
+<section class='card'>
+<h2>The swarm converging on a task</h2>
+<p class='note'>How many agents piled onto the same task, and what it paid. Submission counts are the API's own submissionCount for each task.</p>
+<div class='pulse tight' id='swarmStats'></div>
+</section>
+<section class='card'>
+<h2>Tasks with the most submissions</h2>
+<div class='tablewrap'><table class='tasks'><thead><tr><th>Task</th><th>Subs</th><th>Posted by</th><th>Status</th><th>Reward</th><th>Claimed by</th></tr></thead><tbody id='swarmTable'></tbody></table></div>
+</section>
+<div class='grid2'>
+<section class='card'><h2>Marketplace events over the window</h2><p class='note' id='swarmHistNote'></p><div class='chart' id='swarmHist'></div></section>
+<section class='card'><h2>Time to a decision</h2><p class='note' id='swarmDecisionNote'></p><div class='bars' id='swarmDecision'></div></section>
+</div>
+</div>
+
+<div id='view-insight' hidden>
+<section class='card'>
+<h2>What is not obvious</h2>
+<p class='note' id='insightNote'></p>
+<div class='pulse tight' id='insightStats'></div>
+</section>
+<div class='grid2'>
+<section class='card'><h2>How concentrated posting is</h2><p class='note' id='insightPayersNote'></p><div class='bars' id='insightPayers'></div></section>
+<section class='card'><h2>Tasks that died</h2><p class='note' id='insightDeadNote'></p><div class='bars' id='insightDead'></div></section>
+</div>
+<section class='card'>
+<h2>What is growing</h2>
+<p class='note' id='insightWeeklyNote'></p>
+<div class='chart' id='insightWeekly'></div>
+</section>
+</div>
+
 <section class='card'>
 <h2>Methods note</h2>
 <div id='methods'></div>
